@@ -4,20 +4,15 @@ import gleam/http/request.{type Request}
 import gleam/http/response.{type Response}
 import gleam/httpc
 import gleam/result
-import telegram/client
-
-// import telegram/model/types.{SendMessageParameters}
-import telegram/polling
-
-// fn handler(_req) {
-//   response.new(200)
-//   |> response.set_header("content-type", "text/plain")
-//   |> response.set_body(mist.Bytes(bytes_tree.from_string("Hello from Mist")))
-// }
+import telegram/bot
 
 pub fn fetch_adapter(req: Request(String)) -> Result(Response(String), Nil) {
   httpc.send(req)
   |> result.map_error(fn(_) { Nil })
+}
+
+fn bot_handler(ctx, updatxe) {
+  todo
 }
 
 pub fn main() {
@@ -26,22 +21,9 @@ pub fn main() {
     Error(_) -> panic as "BOT_TOKEN is not set"
   }
   let _ =
-    client.new(token, fetch_adapter)
-    |> polling.start_polling()
+    bot.new(token, fetch_adapter)
+    |> bot.handler(bot_handler)
+    |> bot.start_polling()
 
-  // |> api.send_message(parameters: SendMessageParameters(
-  //   chat_id: 134_877_905,
-  //   text: "lol",
-  // ))
-
-  // case
-  //   mist.new(handler)
-  //   |> mist.bind("localhost")
-  //   |> mist.port(4000)
-  //   |> mist.start
-  // {
-  //   Ok(_) -> io.println("Server started on http://localhost:4000")
-  //   Error(_) -> io.println("Failed to start server")
-  // }
   process.sleep_forever()
 }
