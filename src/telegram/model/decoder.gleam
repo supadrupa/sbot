@@ -4,7 +4,12 @@ import telegram/model/types.{type Message, type Update, Message, Update}
 
 pub fn update_decoder() -> decode.Decoder(Update) {
   use update_id <- decode.field("update_id", decode.int)
-  decode.success(Update(update_id: update_id))
+  use message <- decode.optional_field(
+    "message",
+    None,
+    decode.optional(message_decoder()),
+  )
+  decode.success(Update(update_id: update_id, message:))
 }
 
 pub fn message_decoder() -> decode.Decoder(Message) {
