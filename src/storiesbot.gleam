@@ -1,10 +1,12 @@
+import envoy
 import gleam/erlang/process
 import gleam/http/request.{type Request}
 import gleam/http/response.{type Response}
 import gleam/httpc
 import gleam/result
 import telegram/client
-import telegram/model/types.{SendMessageParameters}
+
+// import telegram/model/types.{SendMessageParameters}
 import telegram/polling
 
 // fn handler(_req) {
@@ -19,8 +21,13 @@ pub fn fetch_adapter(req: Request(String)) -> Result(Response(String), Nil) {
 }
 
 pub fn main() {
-  client.new("", fetch_adapter)
-  |> polling.start_polling()
+  let token = case envoy.get("BOT_TOKEN") {
+    Ok(token) -> token
+    Error(_) -> panic as "BOT_TOKEN is not set"
+  }
+  let _ =
+    client.new(token, fetch_adapter)
+    |> polling.start_polling()
 
   // |> api.send_message(parameters: SendMessageParameters(
   //   chat_id: 134_877_905,
