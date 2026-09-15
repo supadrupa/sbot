@@ -7,7 +7,7 @@ pub type Update {
 }
 
 pub type Context {
-  Context(key: String, update: Update, client: TelegramClient)
+  Context(chat_id: Int, update: Update, client: TelegramClient)
 }
 
 pub type HandlerFn =
