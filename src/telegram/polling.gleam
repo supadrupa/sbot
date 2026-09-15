@@ -3,30 +3,25 @@ import gleam/list
 import gleam/option.{Some}
 import gleam/result
 import telegram/api
-import telegram/client.{type TelegramClient}
+import telegram/bot.{type Bot}
 import telegram/model/types.{type Update, GetUpdatesParameters}
 
 type PollingConfig {
-  PollingConfig(
-    client: TelegramClient,
-    timeout: Int,
-    limit: Int,
-    poll_interval: Int,
-  )
+  PollingConfig(bot: Bot, timeout: Int, limit: Int, poll_interval: Int)
 }
 
-fn create_config(
-  client client: TelegramClient,
+fn create_polling_config(
+  bot bot: Bot,
   timeout timeout: Int,
   limit limit: Int,
   poll_interval poll_interval: Int,
 ) -> PollingConfig {
-  PollingConfig(client:, timeout:, limit:, poll_interval:)
+  PollingConfig(bot:, timeout:, limit:, poll_interval:)
 }
 
-fn loop(config: PollingConfig, offset: Int) {
+fn polling_loop(config: PollingConfig, offset: Int) {
   use updates <- result.try(api.get_updates(
-    config.client,
+    config.bot.telegram_client,
     parameters: GetUpdatesParameters(
       offset: Some(offset),
       limit: Some(config.limit),
@@ -34,8 +29,9 @@ fn loop(config: PollingConfig, offset: Int) {
     ),
   ))
   let new_offset = calculate_new_offset(updates, offset)
+  list.each(updates, fn(update) { bot.dispatch_update(config.bot, update) })
   process.sleep(config.poll_interval)
-  loop(config, new_offset)
+  polling_loop(config, new_offset)
 }
 
 /// Calculate the next offset based on received updates
@@ -51,9 +47,9 @@ pub fn calculate_new_offset(updates: List(Update), current_offset: Int) -> Int {
   }
 }
 
-pub fn start_polling(client client: TelegramClient) {
+pub fn start_polling(bot: Bot) {
   let config =
-    create_config(client:, timeout: 30, limit: 100, poll_interval: 1000)
+    create_polling_config(bot:, timeout: 30, limit: 100, poll_interval: 1000)
 
-  loop(config, 0)
+  polling_loop(config, 0)
 }
