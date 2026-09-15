@@ -17,8 +17,17 @@ pub type Message {
     message_id: Int,
     /// Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     date: Int,
+    /// Conversation the message belongs to.
+    chat: Chat,
     /// Optional. For text messages, the actual UTF-8 text of the message
     text: Option(String),
+  )
+}
+
+pub type Chat {
+  Chat(
+    /// Unique identifier for this chat.
+    id: Int,
   )
 }
 
